@@ -31,6 +31,8 @@ _BUILTIN_MODULE = type(0).__module__
 #     http://docs.python.org/glossary.html#term-eafp
 class NotFound(object):
     pass
+
+
 _NOT_FOUND = NotFound()
 
 
@@ -50,6 +52,11 @@ def _get_value(context, key):
         # (e.g. catching KeyError).
         if key in context:
             return context[key]
+    if isinstance(context, list):
+        try:
+            return context[int(key)]
+        except (ValueError, IndexError):
+            pass
     elif type(context).__module__ != _BUILTIN_MODULE:
         # Then we consider the argument an "object" for the purposes of
         # the spec.
@@ -167,8 +174,8 @@ class ContextStack(object):
 
         Arguments:
 
-          *context: zero or more dictionaries, ContextStack instances, or objects
-            with which to populate the initial context stack.  None
+          *context: zero or more dictionaries, ContextStack instances, or
+            objects with which to populate the initial context stack.  None
             arguments will be skipped.  Items in the *context list are
             added to the stack in order so that later items in the argument
             list take precedence over earlier items.  This behavior is the
